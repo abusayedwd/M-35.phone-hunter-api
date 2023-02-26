@@ -1,16 +1,23 @@
 // console.log('its waking')
- const loadPhones = async(searchField) => {
+ const loadPhones = async(searchField,dataLImit) => {
     const url = `https://openapi.programming-hero.com/api/phones?search=${searchField}`   
     const res = await fetch(url);
     const data =await res.json() ;
-    displayPhones(data.data)
+    displayPhones(data.data, dataLImit)
  }
 
-const displayPhones = phones => {
-        // console.log(phones)
+const displayPhones = (phones,dataLImit) => {
+        console.log(phones )
         const divContainer = document.getElementById('phone-container');
         divContainer.innerText = '';
-         phones = phones.slice(0, 6)
+        //  show button is getar then phones
+        const showButton = document.getElementById('show-btn');
+        if( dataLImit && phones.length > 10){
+                phones = phones.slice(0, 6)
+                showButton.classList.remove('hidden');
+        }else{
+                showButton.classList.add('hidden')
+        }
         //  not show display 
         notFound = document.getElementById('not-found');
         if(phones.length === 0){
@@ -33,7 +40,9 @@ const displayPhones = phones => {
     <h2 class="card-title">${phone.phone_name}</h2>
     <p>If a dog chews shoes whose shoes does he choose?</p>
     <div class="card-actions">
-      <button class="btn btn-primary">Buy Now</button>
+      <button onclick ="showPhoneDetails('${phone.slug}')" class="btn btn-primary">Phone Details</button>
+      <a href="#my-modal-2" class="btn">open modal</a>
+       
     </div>
   </div>
 </div>
@@ -45,12 +54,29 @@ const displayPhones = phones => {
         // stop spinner 
         toggleSpinner(false);
 }
-document.getElementById('search-btn').addEventListener('click', function(){
+
+const prosessSearch = (dataLImit) => {
         toggleSpinner(true);
         const searchField = document.getElementById('search-field').value ;
         // console.log(searchField)
-        loadPhones(searchField);
+        loadPhones(searchField, dataLImit);
+}
+
+document.getElementById('search-btn').addEventListener('click', function(){
+         prosessSearch(10);
 })
+
+document.getElementById('show-btn').addEventListener('click', function(){
+        prosessSearch()
+})
+
+document.getElementById('search-field').addEventListener('keypress', function(e){
+        // console.log(e.key)
+        if(e.key == 'Enter'){
+         prosessSearch(10);      
+        }
+})
+
 
 const toggleSpinner = isLodding => {
         const spinner = document.getElementById('loder')
@@ -60,6 +86,14 @@ const toggleSpinner = isLodding => {
                 spinner.classList.add('hidden');
         }
 }
+const showPhoneDetails = async(id) => {
+
+        const Url = ` https://openapi.programming-hero.com/api/phone/${id}`;
+        const res = await fetch(Url)
+        const data = await res.json()
+        console.log(data.data)
+}
+    
 
 
 //  loadPhones()
